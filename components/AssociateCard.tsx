@@ -1,6 +1,8 @@
 import { router } from 'expo-router';
 import { AssociateProps, Associate } from 'interfaces/AssociateProps';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+
+import { TextI } from './TextI';
 
 function touch(props: AssociateProps) {
   router.push(`/Associate/${props.cpf}`);
@@ -8,15 +10,19 @@ function touch(props: AssociateProps) {
 
 export const AssociateCard = ({ props }: Associate) => (
   <View style={styles.container} onTouchEnd={() => touch(props)}>
-    <Text style={{ color: 'white', fontSize: 18, letterSpacing: 0.5 }}>Nome: {props.fullName}</Text>
-    <Text style={styles.text}>CPF: {props.cpf}</Text>
-    <Text style={styles.text}>
+    <TextI style={{ color: 'white', fontSize: 18, letterSpacing: 0.5 }}>
+      Nome: {props.fullName}
+    </TextI>
+    <TextI style={styles.text}>
+      CPF: <TextI style={{ letterSpacing: 2 }}>{props.cpf}</TextI>
+    </TextI>
+    <TextI style={styles.text}>
       Data de nascimento:{' '}
       {`${props.dateOfBirth.slice(8, 10)}/${props.dateOfBirth.slice(5, 7)}/${props.dateOfBirth.slice(0, 4)}`}
-    </Text>
-    <Text style={styles.text}>Categoria de associação: {props.associationCategory}</Text>
-    <Text style={styles.text}>Telefone celular: {props.cellPhone}</Text>
-    <Text style={styles.text}>Endereço: {props.address}</Text>
+    </TextI>
+    <TextI style={styles.text}>Categoria de associação: {props.associationCategory}</TextI>
+    <TextI style={styles.text}>Telefone celular: {props.cellPhone}</TextI>
+    <TextI style={styles.text}>Endereço: {props.address}</TextI>
   </View>
 );
 

@@ -1,9 +1,9 @@
 {
   "expo": {
-    "name": "frontend",
-    "slug": "frontend",
+    "name": "Poderosas",
+    "slug": "Poderosas",
     "version": "1.0.0",
-    "scheme": "frontend",
+    "scheme": "Poderosas",
     "web": {
       "favicon": "./assets/favicon.png"
     },
@@ -11,13 +11,31 @@
       "tsconfigPaths": true
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#ffffff",
+          "image": "./assets/Light.png",
+          "dark": {
+            "image": "./assets/Dark.png",
+            "backgroundColor": "#343434"
+          },
+          "imageWidth": 200
+        }
+      ],
+      [
+        "expo-font",
+        {
+          "fonts": ["./assets/fonts/Inter.ttf"]
+        }
+      ]
     ],
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/Light.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/Light.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -29,8 +47,17 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/Light.png",
         "backgroundColor": "#ffffff"
+      },
+      "package": "com.joaohenriquelm.poderosas"
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "78d88003-fd33-4444-ac16-7a8e5ef568de"
       }
     }
   }

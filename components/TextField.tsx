@@ -11,9 +11,12 @@ const styles = StyleSheet.create({
     width: '85%',
   },
   input: {
+    fontFamily: 'Inter',
+    height: 50,
+    alignItems: 'center',
     fontSize: 18,
     borderWidth: 1,
-    borderColor: '#631317',
+    borderColor: '#343434',
     paddingStart: 10,
     borderRadius: 15,
   },

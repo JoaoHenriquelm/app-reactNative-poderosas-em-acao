@@ -5,7 +5,12 @@ export default function Layout() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen
         name="Associate/[AssociateCpf]"
-        options={{ headerTitle: 'Associado', presentation: 'modal', headerShown: true }}
+        options={{
+          headerTitle: 'Ficha',
+          presentation: 'modal',
+          headerShown: true,
+          headerTitleStyle: { fontFamily: 'Inter' },
+        }}
       />
       <Stack.Screen name="(tabs)" />
     </Stack>

@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { router } from 'expo-router';
 import axios from 'lib/axios';
 
 export async function showAttendPerCpf(cpf: string) {
@@ -11,7 +12,8 @@ export async function showAttendPerCpf(cpf: string) {
     });
     return response.data.props;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (e: any) {
+  } catch (error: any) {
+    if (error.response.status === 401) router.replace('/Login');
     return null;
   }
 }

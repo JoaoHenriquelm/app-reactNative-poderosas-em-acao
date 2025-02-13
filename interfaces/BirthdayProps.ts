@@ -1,4 +1,4 @@
-export interface BirthdayProps {
+interface BirthdayProps {
   address: string;
   cpf: string;
   dateOfBirth: string;
@@ -6,4 +6,8 @@ export interface BirthdayProps {
   fullName: string;
   homePhone: string;
   cellPhone: string;
+}
+
+export interface Birthday {
+  props: BirthdayProps;
 }

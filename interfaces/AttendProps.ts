@@ -20,6 +20,7 @@ export interface AttendProps {
   _id: string;
   fullName: string;
   dateOfBirth: string;
+  ageSigned: string;
   natiolity: string;
   maritalStatus: string;
   cpf: string;
@@ -47,12 +48,14 @@ export interface AttendProps {
   vaccines: string;
   allergies: string;
   specialsConditions: string;
+  continuousUseMedications: string;
   observations: string;
   medicalInsurance: string;
   working: string;
   functionWork: string;
   activityOfInterest: string;
   preferredParticipationShift: string;
+  authorizationUseImage: string;
 
   emergencyContact: EmergencyContact;
   dataOfResponsible?: ResponsibleData;

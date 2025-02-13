@@ -1,6 +1,8 @@
 import { router } from 'expo-router';
-import { BirthdayProps } from 'interfaces/BirthdayProps';
-import { View, Text, StyleSheet } from 'react-native';
+import { Birthday } from 'interfaces/BirthdayProps';
+import { View, StyleSheet } from 'react-native';
+
+import { TextI } from './TextI';
 
 function touch(cpf: string) {
   router.push(`/Associate/${cpf}`);
@@ -12,29 +14,25 @@ function newAge(dateOfBirthISO: string) {
   return currentYear - dateOfBirth;
 }
 
-export const BirthdayCard = ({
-  address,
-  cellPhone,
-  cpf,
-  dateOfBirth,
-  email,
-  fullName,
-  homePhone,
-}: BirthdayProps) => (
-  <View style={styles.container} onTouchEnd={() => touch(cpf)}>
-    <Text style={{ color: 'white', fontSize: 18, letterSpacing: 0.5 }}>Nome: {fullName}</Text>
-    <Text style={styles.text}>
+export const BirthdayCard = ({ props }: Birthday) => (
+  <View style={styles.container} onTouchEnd={() => touch(props.cpf)}>
+    <TextI style={{ color: 'white', fontSize: 18, letterSpacing: 0.5 }}>
+      Nome: {props.fullName}
+    </TextI>
+    <TextI style={{ color: 'white', fontSize: 18, letterSpacing: 0.5 }}>
+      Estará completando: {newAge(props.dateOfBirth)} anos
+    </TextI>
+    <TextI style={styles.text}>
       Data de nascimento:{' '}
-      {`${dateOfBirth.slice(8, 10)}/${dateOfBirth.slice(5, 7)}/${dateOfBirth.slice(0, 4)}`}
-    </Text>
-    <Text style={{ color: 'white', fontSize: 18, letterSpacing: 0.5 }}>
-      Estará completando: {newAge(dateOfBirth)} anos
-    </Text>
-    <Text style={styles.text}>CPF: {cpf}</Text>
-    <Text style={styles.text}>Telefone celular: {cellPhone}</Text>
-    <Text style={styles.text}>Telefone residencial: {homePhone}</Text>
-    <Text style={styles.text}>E-mail: {email}</Text>
-    <Text style={styles.text}>Endereço: {address}</Text>
+      {`${props.dateOfBirth.slice(8, 10)}/${props.dateOfBirth.slice(5, 7)}/${props.dateOfBirth.slice(0, 4)}`}
+    </TextI>
+    <TextI style={styles.text}>
+      CPF: <TextI style={{ letterSpacing: 2 }}>{props.cpf}</TextI>
+    </TextI>
+    <TextI style={styles.text}>Telefone celular: {props.cellPhone}</TextI>
+    <TextI style={styles.text}>Telefone residencial: {props.homePhone}</TextI>
+    <TextI style={styles.text}>E-mail: {props.email}</TextI>
+    <TextI style={styles.text}>Endereço: {props.address}</TextI>
   </View>
 );
 

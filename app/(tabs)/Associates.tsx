@@ -1,7 +1,9 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { AssociateCard } from 'components/AssociateCard';
+import { useFocusEffect, useNavigation } from 'expo-router';
 import { Associate } from 'interfaces/AssociateProps';
-import React, { useEffect, useState } from 'react';
+import { LimitOfPages } from 'interfaces/LimitOfPages';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -13,7 +15,9 @@ import {
   ActivityIndicator,
   TextInput,
   Pressable,
+  RefreshControl,
 } from 'react-native';
+import { getLimitOfPagesOfAssociates } from 'services/get-limit-of-pages-of-associates';
 import { indexAssociates } from 'services/index-associates';
 import { showAssociatesPerName } from 'services/show-associates-per-name';
 
@@ -21,8 +25,23 @@ export default function Associates() {
   const [associates, setAssociates] = useState<Associate[]>([]);
   const [searchText, setSearchText] = useState('');
   const [page, setPage] = useState(1);
+  const [limitPage, setLimitPage] = useState(1);
   const [showIndex, setShowIndex] = useState(true);
   const [loading, setLoading] = useState(false);
+
+  const flatListRef = useRef<FlatList>(null);
+  const navigation = useNavigation();
+
+  useFocusEffect(() => {
+    return navigation.addListener('state', () => {
+      flatListRef.current?.scrollToOffset({ animated: true, offset: 0 });
+    });
+  });
+  useFocusEffect(() => {
+    return navigation.addListener('focus', () => {
+      onRefresh();
+    });
+  });
 
   function cleanSearchText() {
     setSearchText('');
@@ -41,42 +60,55 @@ export default function Associates() {
     if (page === 1) return;
     setLoading(true);
     const response = await indexAssociates(page - 1);
-    setPage(page - 1);
-    setAssociates(response);
     setLoading(false);
+    setAssociates(response);
+    setPage(page - 1);
   }
 
   async function searchAssociates() {
     setLoading(true);
+    setPage(1);
     const response = await showAssociatesPerName(searchText);
     setAssociates(response);
     setShowIndex(false);
     setLoading(false);
   }
 
+  async function loadAssociates() {
+    setLoading(true);
+    setPage(1);
+    const response = await indexAssociates(page);
+    const index: LimitOfPages = await getLimitOfPagesOfAssociates();
+    setLimitPage(index.limitOfPages);
+    setAssociates(response);
+    setLoading(false);
+  }
+
   useEffect(() => {
-    async function loadAssociates() {
-      setLoading(true);
-      setPage(1);
-      const response = await indexAssociates(page);
-      setAssociates(response);
-      setLoading(false);
-    }
     if (searchText.length === 0) {
       loadAssociates();
       setShowIndex(true);
     }
   }, [searchText]);
 
+  const onRefresh = useCallback(() => {
+    if (searchText.length === 0) {
+      loadAssociates();
+      return;
+    }
+    searchAssociates();
+  }, [searchText]);
+
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#f2f2f2" />
       <View
         style={{
           width: '85%',
           height: 50,
           borderRadius: 15,
           alignContent: 'center',
-          borderColor: '#631317',
+          borderColor: '#343434',
           borderWidth: 1,
           flexDirection: 'row',
           justifyContent: 'space-between',
@@ -89,31 +121,39 @@ export default function Associates() {
             fontSize: 18,
             paddingStart: 10,
             width: '75%',
+            fontFamily: 'Inter',
           }}
         />
 
-        <View style={{ flexDirection: 'row', width: '25%', justifyContent: 'space-between' }}>
-          <Pressable
-            style={{
-              justifyContent: 'center',
-              marginLeft: 5,
-            }}
-            onPress={cleanSearchText}>
-            <FontAwesome size={20} name="close" color="gray" />
-          </Pressable>
+        <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
+          {searchText.length > 0 && (
+            <Pressable
+              style={{
+                justifyContent: 'center',
+                alignItems: 'center',
+                alignContent: 'center',
+                alignSelf: 'center',
+                position: 'relative',
+                right: 10,
+                height: 50,
+              }}
+              onPress={cleanSearchText}>
+              <FontAwesome size={20} name="close" color="gray" />
+            </Pressable>
+          )}
 
           <Pressable
             style={{
-              backgroundColor: 'black',
+              backgroundColor: '#343434',
               justifyContent: 'center',
               alignContent: 'center',
               alignItems: 'center',
               paddingLeft: 18,
               paddingRight: 18,
-              borderTopRightRadius: 10,
-              borderBottomRightRadius: 10,
+              borderTopRightRadius: 14,
+              borderBottomRightRadius: 14,
             }}
-            onPress={searchAssociates}>
+            onPress={() => searchText.length > 0 && searchAssociates()}>
             <FontAwesome size={18} name="search" color="white" />
           </Pressable>
         </View>
@@ -135,8 +175,10 @@ export default function Associates() {
           </View>
         ) : (
           <FlatList
+            ref={flatListRef}
+            refreshControl={<RefreshControl onRefresh={onRefresh} refreshing={loading} />}
             ListFooterComponent={
-              showIndex ? (
+              showIndex && limitPage > 1 ? (
                 <View style={styles.indexContainer}>
                   <View style={styles.index}>
                     <Pressable
@@ -163,8 +205,13 @@ export default function Associates() {
                         alignItems: 'center',
                         borderColor: '#f64f71',
                       }}
+                      disabled={limitPage === page}
                       onPress={setUpPage}>
-                      <FontAwesome size={24} name="angle-right" color="#f64f71" />
+                      <FontAwesome
+                        size={24}
+                        name="angle-right"
+                        color={limitPage === page ? '#919191' : '#f64f71'}
+                      />
                     </Pressable>
                   </View>
                 </View>

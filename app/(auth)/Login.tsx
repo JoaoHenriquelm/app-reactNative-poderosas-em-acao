@@ -1,17 +1,19 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { TextField } from 'components/TextField';
+import { TextI } from 'components/TextI';
+import * as LocalAuthentication from 'expo-local-authentication';
 import { router } from 'expo-router';
 import axios from 'lib/axios';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
-  Button,
   View,
   Image,
   ScrollView,
-  Text,
   ActivityIndicator,
+  StatusBar,
+  TouchableOpacity,
 } from 'react-native';
 
 export default function Login() {
@@ -20,6 +22,44 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
+  async function verifyAvaibleAuthentication() {
+    const compatible = await LocalAuthentication.hasHardwareAsync();
+    if (!compatible) return false;
+    const types = await LocalAuthentication.supportedAuthenticationTypesAsync();
+    if (LocalAuthentication.AuthenticationType[types[0]] === 'FINGERPRINT') return true;
+  }
+
+  async function handleBiometricAuthentication() {
+    const isAvaible = await verifyAvaibleAuthentication();
+    if (isAvaible) {
+      const isBiometricEnrolled = await LocalAuthentication.isEnrolledAsync();
+      if (!isBiometricEnrolled) return;
+      const authenticate = await LocalAuthentication.authenticateAsync({
+        promptMessage: 'Login com Biometria',
+        fallbackLabel: 'Biometria não reconhecida',
+      });
+      if (authenticate.success) {
+        router.replace('/Associates');
+      }
+    }
+  }
+
+  async function hasTokenValidInStorage() {
+    const token = await AsyncStorage.getItem('token');
+    if (!token) return false;
+    const response = await axios.post('/login/verify', {
+      token,
+    });
+    return !!response.data.isValid;
+  }
+
+  useEffect(() => {
+    async function biometricVerify() {
+      if (await hasTokenValidInStorage()) handleBiometricAuthentication();
+    }
+    biometricVerify();
+  }, []);
+
   async function login() {
     setErrorMessage('');
     setLoading(true);
@@ -27,7 +67,7 @@ export default function Login() {
       const response = await axios.post(
         '/login',
         {
-          name,
+          name: name.trim(),
           password,
         },
         { withCredentials: true }
@@ -48,6 +88,7 @@ export default function Login() {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
+      <StatusBar barStyle="dark-content" backgroundColor="#f2f2f2" />
       {loading ? (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <ActivityIndicator
@@ -65,7 +106,7 @@ export default function Login() {
             }}
           />
           <View style={styles.container}>
-            {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
+            {errorMessage && <TextI style={styles.errorText}>{errorMessage}</TextI>}
             <TextField placeholder="Digite seu nome" value={name} onChangeText={setName} />
             <TextField
               placeholder="Digite sua senha"
@@ -73,9 +114,20 @@ export default function Login() {
               value={password}
               onChangeText={setPassword}
             />
-            <View style={{ width: '85%' }}>
-              <Button title="Entrar" color="#c50b31" onPress={login} />
-            </View>
+
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={login}
+              style={{
+                backgroundColor: '#c50b31',
+                width: '85%',
+                height: 50,
+                borderRadius: 10,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              <TextI style={{ color: 'white' }}>Entrar</TextI>
+            </TouchableOpacity>
           </View>
         </ScrollView>
       )}
