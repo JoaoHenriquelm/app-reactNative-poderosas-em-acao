@@ -2,10 +2,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import axios from 'lib/axios';
 
-export async function showBirthdays() {
+export async function showBirthdays(month: number) {
   const token = await AsyncStorage.getItem('token');
   try {
-    const response = await axios.get(`/birthdays`, {
+    const response = await axios.get(`/birthdays/${month < 10 ? `0${month}` : month}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

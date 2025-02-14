@@ -1,5 +1,6 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { AssociateCard } from 'components/AssociateCard';
+import { TextI } from 'components/TextI';
 import { useFocusEffect, useNavigation } from 'expo-router';
 import { Associate } from 'interfaces/AssociateProps';
 import { LimitOfPages } from 'interfaces/LimitOfPages';
@@ -11,7 +12,6 @@ import {
   FlatList,
   Platform,
   StatusBar,
-  Text,
   ActivityIndicator,
   TextInput,
   Pressable,
@@ -24,6 +24,7 @@ import { showAssociatesPerName } from 'services/show-associates-per-name';
 export default function Associates() {
   const [associates, setAssociates] = useState<Associate[]>([]);
   const [searchText, setSearchText] = useState('');
+  const [searchName, setSearchName] = useState('');
   const [page, setPage] = useState(1);
   const [limitPage, setLimitPage] = useState(1);
   const [showIndex, setShowIndex] = useState(true);
@@ -68,6 +69,7 @@ export default function Associates() {
   async function searchAssociates() {
     setLoading(true);
     setPage(1);
+    setSearchName(searchText);
     const response = await showAssociatesPerName(searchText);
     setAssociates(response);
     setShowIndex(false);
@@ -86,6 +88,7 @@ export default function Associates() {
 
   useEffect(() => {
     if (searchText.length === 0) {
+      setSearchName('');
       loadAssociates();
       setShowIndex(true);
     }
@@ -177,6 +180,20 @@ export default function Associates() {
           <FlatList
             ref={flatListRef}
             refreshControl={<RefreshControl onRefresh={onRefresh} refreshing={loading} />}
+            ListHeaderComponent={
+              searchName ? (
+                <View
+                  style={{
+                    margin: 'auto',
+                    marginBottom: 20,
+                    width: '85%',
+                  }}>
+                  <TextI style={{ fontSize: 18, color: '#343434' }}>
+                    Procurando por: "{searchName}"
+                  </TextI>
+                </View>
+              ) : null
+            }
             ListFooterComponent={
               showIndex && limitPage > 1 ? (
                 <View style={styles.indexContainer}>
@@ -190,12 +207,17 @@ export default function Associates() {
                         alignItems: 'center',
                         borderColor: '#f64f71',
                       }}
+                      disabled={page === 1}
                       onPress={setDownPage}>
-                      <FontAwesome size={24} name="angle-left" color="#f64f71" />
+                      <FontAwesome
+                        size={24}
+                        name="angle-left"
+                        color={page === 1 ? '#919191' : '#f64f71'}
+                      />
                     </Pressable>
-                    <Text style={{ fontSize: 18, justifyContent: 'center', alignSelf: 'center' }}>
+                    <TextI style={{ fontSize: 18, justifyContent: 'center', alignSelf: 'center' }}>
                       {page}
-                    </Text>
+                    </TextI>
                     <Pressable
                       style={{
                         borderLeftWidth: 1,
@@ -222,7 +244,7 @@ export default function Associates() {
             renderItem={({ item }) => <AssociateCard props={item.props} />}
             ListEmptyComponent={
               <View style={{ alignItems: 'center' }}>
-                <Text>Nenhum associado encontrado</Text>
+                <TextI>Nenhum associado encontrado</TextI>
               </View>
             }
           />
