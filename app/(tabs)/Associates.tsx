@@ -26,6 +26,7 @@ export default function Associates() {
   const [searchText, setSearchText] = useState('');
   const [searchName, setSearchName] = useState('');
   const [page, setPage] = useState(1);
+  const [updatePageCount, setUpdatePageCount] = useState(0);
   const [limitPage, setLimitPage] = useState(1);
   const [showIndex, setShowIndex] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -44,31 +45,28 @@ export default function Associates() {
     });
   });
 
+  // Não atualizar quando tirar o texto sem tá pesquisado algo
+  // Quando voltar pra associates somente setar a página 1 e loadar os associados da página, não fazer pesquisas automaticas.
+
   function cleanSearchText() {
     setSearchText('');
   }
 
   async function setUpPage() {
-    setLoading(true);
-    const response = await indexAssociates(page + 1);
-    setLoading(false);
-    if (response.length === 0) return;
-    setAssociates(response);
     setPage(page + 1);
   }
 
   async function setDownPage() {
-    if (page === 1) return;
-    setLoading(true);
-    const response = await indexAssociates(page - 1);
-    setLoading(false);
-    setAssociates(response);
     setPage(page - 1);
+  }
+
+  function setPageInitial() {
+    setPage(1);
+    setUpdatePageCount(updatePageCount + 1);
   }
 
   async function searchAssociates() {
     setLoading(true);
-    setPage(1);
     setSearchName(searchText);
     const response = await showAssociatesPerName(searchText);
     setAssociates(response);
@@ -78,7 +76,6 @@ export default function Associates() {
 
   async function loadAssociates() {
     setLoading(true);
-    setPage(1);
     const response = await indexAssociates(page);
     const index: LimitOfPages = await getLimitOfPagesOfAssociates();
     setLimitPage(index.limitOfPages);
@@ -87,20 +84,25 @@ export default function Associates() {
   }
 
   useEffect(() => {
-    if (searchText.length === 0) {
+    if (searchText.length === 0 && searchName) {
       setSearchName('');
-      loadAssociates();
+      setPageInitial();
       setShowIndex(true);
     }
   }, [searchText]);
 
+  useEffect(() => {
+    loadAssociates();
+  }, [updatePageCount, page]);
+
   const onRefresh = useCallback(() => {
-    if (searchText.length === 0) {
-      loadAssociates();
+    if (!searchName) {
+      setPageInitial();
+      setShowIndex(true);
       return;
     }
     searchAssociates();
-  }, [searchText]);
+  }, [searchName]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -188,9 +190,7 @@ export default function Associates() {
                     marginBottom: 20,
                     width: '85%',
                   }}>
-                  <TextI style={{ fontSize: 18, color: '#343434' }}>
-                    Procurando por: "{searchName}"
-                  </TextI>
+                  <TextI style={{ fontSize: 18 }}>Procurando por: "{searchName}"</TextI>
                 </View>
               ) : null
             }
