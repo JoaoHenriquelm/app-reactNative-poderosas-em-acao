@@ -45,9 +45,6 @@ export default function Associates() {
     });
   });
 
-  // Não atualizar quando tirar o texto sem tá pesquisado algo
-  // Quando voltar pra associates somente setar a página 1 e loadar os associados da página, não fazer pesquisas automaticas.
-
   function cleanSearchText() {
     setSearchText('');
   }
