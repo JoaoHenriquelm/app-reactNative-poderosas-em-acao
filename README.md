@@ -15,7 +15,7 @@ Esse projeto é usado pela instituição poderosas em ação.
 
 **Front-end:** React Native, Expo, Typescript.
 ## Screenshots
-**Dados fictícios***
+**Dados fictícios**
 
 ![Tela de login](https://github.com/user-attachments/assets/b721f0c1-679d-4e66-bee3-ba5fafeef230)
 ![Tela de index de associados](https://github.com/user-attachments/assets/374ba104-443c-4521-8c3e-c6048b0d186a)
